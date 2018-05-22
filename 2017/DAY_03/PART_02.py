@@ -1,5 +1,28 @@
 import math, sys
 
+def getIndex(x, y):
+
+  if (x == 0 and y == 0):
+    return 1
+
+  maxCoordinate = max(abs(x),abs(y))
+
+  outerSize = maxCoordinate * 2 + 1;
+  innerSize = outerSize - 2 
+
+  startIndex = innerSize * innerSize
+  endIndex = outerSize * outerSize
+  ringSize = endIndex - startIndex
+
+  if y == maxCoordinate * -1:
+    return endIndex + x + y
+
+  elif x == maxCoordinate * -1 or y == maxCoordinate:
+    return startIndex + (ringSize // 2) - x - y
+
+  else:
+    return startIndex + x + y
+
 def getCoordinates(num):
   if num == 1:
     return [0,0]
@@ -31,23 +54,22 @@ def getCoordinates(num):
     return [maxCoordinate, (index % edgeSize) - maxCoordinate]
 
 def getNextLargest(limit):
-  results = [0,1]
-  dictionary = {"0,0" : 1}
-
-  i = 1
+  results = [0,1,1]
+  i = 3
 
   while limit >= results[-1]:
     coord = getCoordinates(i)
+
     sum = 0
 
     for x in range(3):
       for y in range(3):
-        key = "%d,%d" % (coord[0] - 1 + x, coord[1] - 1 + y)
 
-        if key in dictionary:
-          sum += results[dictionary[key]]
+        index = getIndex(coord[0] - 1 + x, coord[1] - 1 + y)
 
-    dictionary["%d,%d" % (coord[0],coord[1])] = sum
+        if index < len(results):
+          sum += results[index]
+
     results.append(sum)
     i += 1
 
