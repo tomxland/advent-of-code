@@ -1,4 +1,4 @@
-import math
+import math, sys
 
 def getCoordinates(num):
   if num == 1:
@@ -53,4 +53,5 @@ def getNextLargest(limit):
 
   return results[-1]
 
-print(266330, getNextLargest(265149))
+num = int(sys.argv[1])
+print(getNextLargest(num));

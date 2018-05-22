@@ -1,4 +1,4 @@
-import re
+import re, sys
 
 def getNumSteps(path):
 
@@ -21,4 +21,4 @@ def getNumSteps(path):
 
     return steps
 
-print(getNumSteps('input.txt'))
+print(getNumSteps(sys.argv[1]))

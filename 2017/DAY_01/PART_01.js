@@ -1,3 +1,5 @@
+var fs = require('fs');
+
 function getCapcha(input) {
   var sum = 0;
 
@@ -18,3 +20,10 @@ function getCapcha(input) {
 
   return sum; 
 }
+
+fs.readFile(process.argv[2], 'utf8', function(err, data) {
+  if (err) {
+    return console.log(err);
+  }
+  console.log(getCapcha(data))
+});

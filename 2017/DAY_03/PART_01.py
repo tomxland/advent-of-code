@@ -1,4 +1,4 @@
-import math
+import math, sys
 
 def getPath(input) :
   if input == 1:
@@ -23,4 +23,5 @@ def getPath(input) :
   #calculate how far the index is from the shortest path
   return shortestPath + abs(shortestPath - (index % longestPath))
 
-print(getPath(265149));
+num = int(sys.argv[1])
+print(getPath(num));

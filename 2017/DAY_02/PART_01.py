@@ -1,27 +1,28 @@
-import re
+import re, sys
 
 def getChecksum(path):
 
-    file = open(path,'r');
+  file = open(path,'r');
 
-    checksum = 0;
+  checksum = 0;
 
-    for line in file:
-        array = re.split(r'\t+', line.rstrip())
+  for line in file:
+    array = re.split(r'\t+', line.rstrip())
 
-        min = 0;
-        max = 0;
+    min = 0;
+    max = 0;
 
-        for index, val in enumerate(array):
-            val = int(val)
+    for index, val in enumerate(array):
+      val = int(val)
 
-            if (index == 0 or val < min):
-                min = val
-            if (index == 0 or val > max):
-                max = val
+      if (index == 0 or val < min):
+        min = val
+      if (index == 0 or val > max):
+        max = val
 
-        checksum += (max - min)
+    checksum += (max - min)
 
-    return checksum
+  file.close()
+  return checksum
 
-print(getChecksum('input.txt'))
+print(getChecksum(sys.argv[1]))

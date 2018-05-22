@@ -1,36 +1,44 @@
+import re, sys
+
 def getCycles(banks):
-    log = set()
-    found = False
+  log = set()
+  found = False
 
-    counter = 0
+  counter = 0
 
-    while not found:
-        #Find max
-        counter += 1
+  while not found:
+    #Find max
+    counter += 1
 
-        maxIndex = 0
-        maxValue = 0
+    maxIndex = 0
+    maxValue = 0
 
-        for index, b in enumerate(banks):
-            if b > maxValue:
-                maxValue = b
-                maxIndex = index
+    for index, b in enumerate(banks):
+      if b > maxValue:
+        maxValue = b
+        maxIndex = index
 
-        banks[maxIndex] = 0
+    banks[maxIndex] = 0
 
-        for i in range(maxValue):
-            offset = (maxIndex + 1 + i) % len(banks)
-            banks[offset] += 1
+    for i in range(maxValue):
+      offset = (maxIndex + 1 + i) % len(banks)
+      banks[offset] += 1
 
-        bankStr = ','.join(str(b) for b in banks)
+    bankStr = ','.join(str(b) for b in banks)
 
-        if bankStr in log:
-            found = True
-        else:
-            log.add(bankStr)
-            print(counter,bankStr)
+    if bankStr in log:
+      found = True
+    else:
+      log.add(bankStr)
 
-    return counter
+  return counter
 
-banks = [4,1,15,12,0,9,9,5,5,8,7,3,14,5,12,3]
+def parseInput(path):
+  file = open(path,'r');
+  array = re.split(r'\t+', file.readline().rstrip())
+
+  file.close();
+  return list(map(int, array));
+
+banks = parseInput(sys.argv[1]);
 print(getCycles(banks))
