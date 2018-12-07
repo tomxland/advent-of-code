@@ -4,9 +4,14 @@ from queue import PriorityQueue
 from collections import defaultdict
 
 unvisited = set();
-blocked = set()
-blockerMap = {}
-blockedMap = {}
+blocked = set();
+blockerMap = {};
+blockedMap = {};
+
+available = PriorityQueue()
+workers = [];
+NUM_WORKERS = 5;
+OFFSET = 4;
 
 def getSteps(path):
   file = open(path,'r');
@@ -31,33 +36,50 @@ def getSteps(path):
 
     blockerMap[blocker].append(blockedStep);
 
-def getOrder():
-  order = "";
-  available = PriorityQueue()
+def getTime():
 
-  diff = unvisited.difference(blocked)
+  diff = unvisited.difference(blocked);
+  total = 0;
 
   for d in diff:
     available.put(d)
 
-  while not available.empty():
-    step = available.get()
+  while not available.empty() or len(workers) > 0:
 
-    time = ord(step) - 4;
+    i = 0;
 
-    unvisited.remove(step)
-    order += step;
+    while i < len(workers):
+      workers[i][1] -= 1
 
-    if step in blockerMap:
-      newlyFreed = blockerMap[step];
+      if workers[i][1] == 0:
+        visit(workers[i][0])
+        workers.pop(i)
+      else:
+        i += 1
 
-      for freed in newlyFreed:
-        blockedMap[freed] = blockedMap[freed].replace(step,"")
+    while not available.empty() and len(workers) < NUM_WORKERS:
+      step = available.get()
+      workers.append([step, ord(step) - OFFSET])
 
-        if not blockedMap[freed]:
-          available.put(freed)
+    print(total, workers)
 
-  return order;
+    total += 1
+
+  return total - 1;
+
+def visit(step):
+  #order = "";
+  unvisited.remove(step)
+  #order += step;
+
+  if step in blockerMap:
+    newlyFreed = blockerMap[step];
+
+    for freed in newlyFreed:
+      blockedMap[freed] = blockedMap[freed].replace(step,"")
+
+      if not blockedMap[freed]:
+        available.put(freed)
 
 getSteps(sys.argv[1]);
-print(getOrder())
+print(getTime())
