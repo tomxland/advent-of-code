@@ -1,56 +1,57 @@
 import re, sys
 
-path = sys.argv[1]
-
-file = open(path,'r');
-
 xPositions = [];
 yPositions = [];
 velocities = [];
 
+def getCoordinates(path):
+	file = open(path,'r');
 
-for line in file:
-	args = re.split("[<>, ]+", line.strip());
-	print(args)
+	for line in file:
+		args = re.split("[<>, ]+", line.strip());
 
-	xPositions.append(int(args[1]));
-	yPositions.append(int(args[2]));
-	velocities.append((int(args[4]), int(args[5])))
-
-NUM_POSITIONS = len(xPositions);
-
-for seconds in range(int(sys.argv[2])):
+		xPositions.append(int(args[1]));
+		yPositions.append(int(args[2]));
+		velocities.append((int(args[4]), int(args[5])))
 
 
-	for i, vel in enumerate(velocities):
-		xPositions[i] += vel[0];
-		yPositions[i] += vel[1]
+def getConvergence():
+	seconds = 1
 
-	maxX = max(xPositions)
-	minX = min(xPositions)
-	maxY = max(yPositions)
-	minY = min(yPositions)
+	while True:
+		for i, vel in enumerate(velocities):
+			xPositions[i] += vel[0];
+			yPositions[i] += vel[1]
 
-	if (maxX - minX < 200 and maxY - minY < 200):
-		grid = []
-		for y in range(minY, maxY + 1):
-			row = []
-			for x in range(minX, maxX + 1):
-				row.append(' ')
-			grid.append(row)
+		maxX = max(xPositions)
+		minX = min(xPositions)
+		maxY = max(yPositions)
+		minY = min(yPositions)
 
-		for i in range(NUM_POSITIONS):
-			x = xPositions[i] - minX;
-			y = yPositions[i] - minY;
-			grid[y][x] = '#'
+		if (maxY - minY <= 10):
+			grid = []
+			for y in range(minY, maxY + 1):
+				row = []
+				for x in range(minX, maxX + 1):
+					row.append(' ')
+				grid.append(row)
 
-		f = open("output/"+ str(seconds + 1) + ".txt", "w")
+			for i in range(len(xPositions)):
+				x = xPositions[i] - minX;
+				y = yPositions[i] - minY;
+				grid[y][x] = '#'
 
-		for row in grid:
-			f.write("\n" + "".join(row))
+			f = open("output.txt", "w")
 
-		f.close()
+			for row in grid:
+				f.write("".join(row) + "\n")
 
-	print("After " + str(seconds) + " seconds: ")
-	print("X Diff: ", maxX - minX)
-	print("Y Diff: ", maxY - minY)
+			f.close()
+			return seconds
+
+		else:
+			seconds += 1
+
+
+getCoordinates(sys.argv[1])
+print(getConvergence())
