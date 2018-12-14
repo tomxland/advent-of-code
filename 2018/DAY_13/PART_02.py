@@ -1,5 +1,6 @@
 import re, sys, copy
 
+emptyTrack = [];
 track = [];
 carts = {};
 turns = ['L','S','R'];
@@ -31,6 +32,8 @@ def getTrack(path):
 	# Set up carts
 	for y, line in enumerate(file):
 		row = []
+		emptyRow = []
+
 		for x, ch in enumerate(line):
 			if (ch == 'v' or ch == '^' or ch == '<' or ch == '>'):
 				letter = chr(id);
@@ -39,22 +42,17 @@ def getTrack(path):
 
 			# Reset grid	
 			if ch == 'v' or ch == '^':
-				row.append('|')
+				emptyRow.append('|')
+				row.append(letter)
 			elif ch == '<' or ch == '>':
-				row.append('-')
+				emptyRow.append('-')
+				row.append(letter)
 			else:
+				emptyRow.append(ch)
 				row.append(ch)
 
+		emptyTrack.append(emptyRow);
 		track.append(row);
-
-def copyTrack():
-	copy = []
-	for row in track:
-		copyRow = [];
-		for ch in row:
-			copyRow.append(ch);
-		copy.append(copyRow)
-	return copy;
 
 def isSafe(ch):
 	return ch == '+' or ch == "/" or ch == "|" or ch == "\\" or ch == "-"
@@ -63,8 +61,6 @@ def getLastCart():
 	while len(carts) > 1:
 		coords = {};
 
-		thisTick = copyTrack();
-
 		#have to sort carts?
 		vals = list(carts.values());
 		vals.sort();
@@ -72,78 +68,76 @@ def getLastCart():
 		collisions = [];
 
 		for cart in vals:
-			thisTick[cart.y][cart.x] = cart.id;
+			if cart.id in carts:
+				nextX = cart.x
+				nextY = cart.y
 
-		for cart in vals:
-			oldX = cart.x
-			oldY = cart.y
+				#Find next position
+				if cart.dir == '>':
+					nextX += 1
+				elif cart.dir == '<':
+					nextX -= 1
+				elif cart.dir == '^':
+					nextY -= 1
+				elif cart.dir == 'v':
+					nextY += 1
 
-			#Find next position
-			if cart.dir == '>':
-				cart.x += 1
-			elif cart.dir == '<':
-				cart.x -= 1
-			elif cart.dir == '^':
-				cart.y -= 1
-			elif cart.dir == 'v':
-				cart.y += 1
+				if isSafe(track[nextY][nextX]):
+					track[nextY][nextX] = cart.id;
+					track[cart.y][cart.x] = emptyTrack[cart.y][cart.x];
 
-			if isSafe(thisTick[cart.y][cart.x]):
-				thisTick[cart.y][cart.x] = cart.id;
-				thisTick[oldY][oldX] = track[oldY][oldX];
+					nextPos = emptyTrack[nextY][nextX];
 
-				nextPos = track[cart.y][cart.x];
-				if nextPos == '\\':
-					if cart.dir == '>':
-						cart.dir = 'v'
-					elif cart.dir == '<':
-						cart.dir = '^'
-					elif cart.dir == '^':
-						cart.dir = '<'
-					elif cart.dir == 'v':
-						cart.dir = '>'
-				elif nextPos == '/':
-					if cart.dir == '>':
-						cart.dir = '^'
-					elif cart.dir == '<':
-						cart.dir = 'v'
-					elif cart.dir == '^':
-						cart.dir = '>'
-					elif cart.dir == 'v':
-						cart.dir = '<'
-				elif nextPos == '+':
-					turn = turns[cart.nextTurn]
-
-					if (turn == 'L'):
-						if cart.dir == '>':
-							cart.dir = '^'
-						elif cart.dir == '<':
-							cart.dir = 'v'
-						elif cart.dir == '^':
-							cart.dir = '<'
-						elif cart.dir == 'v':
-							cart.dir = '>'
-					elif (turn == 'R'):
+					if nextPos == '\\':
 						if cart.dir == '>':
 							cart.dir = 'v'
 						elif cart.dir == '<':
 							cart.dir = '^'
 						elif cart.dir == '^':
+							cart.dir = '<'
+						elif cart.dir == 'v':
+							cart.dir = '>'
+					elif nextPos == '/':
+						if cart.dir == '>':
+							cart.dir = '^'
+						elif cart.dir == '<':
+							cart.dir = 'v'
+						elif cart.dir == '^':
 							cart.dir = '>'
 						elif cart.dir == 'v':
 							cart.dir = '<'
+					elif nextPos == '+':
+						turn = turns[cart.nextTurn]
 
-					cart.nextTurn = (cart.nextTurn + 1) % 3 
-			else:
-				collisions.append(thisTick[cart.y][cart.x])
-				collisions.append(cart.id)
-				thisTick[cart.y][cart.x] = track[cart.y][cart.x]
+						if (turn == 'L'):
+							if cart.dir == '>':
+								cart.dir = '^'
+							elif cart.dir == '<':
+								cart.dir = 'v'
+							elif cart.dir == '^':
+								cart.dir = '<'
+							elif cart.dir == 'v':
+								cart.dir = '>'
+						elif (turn == 'R'):
+							if cart.dir == '>':
+								cart.dir = 'v'
+							elif cart.dir == '<':
+								cart.dir = '^'
+							elif cart.dir == '^':
+								cart.dir = '>'
+							elif cart.dir == 'v':
+								cart.dir = '<'
 
-		for letter in collisions:
-			if letter in carts:
-				del carts[letter];
+						cart.nextTurn = (cart.nextTurn + 1) % 3 
 
-		del thisTick;
+					cart.y = nextY;
+					cart.x = nextX;
+				else:
+					collision = track[nextY][nextX];
+					track[cart.y][cart.x] = emptyTrack[cart.y][cart.x]
+					track[nextY][nextX] = emptyTrack[nextY][nextX]
+					del carts[collision];
+					del carts[cart.id]
 
 	# Get only remaining cart 
 	letter = next(iter(carts));
