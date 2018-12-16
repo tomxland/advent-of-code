@@ -2,9 +2,9 @@ import re, sys, copy
 from queue import PriorityQueue
 
 class Player:
-	def __init__(self, type, x, y):
+	def __init__(self, type, x, y, attack):
 		self.hp = 200
-		self.attack = 3
+		self.attack = attack
 		self.type = type
 		self.x = x
 		self.y = y
@@ -20,6 +20,7 @@ class Player:
 file = open(sys.argv[1], 'r')
 
 count = { 'E': 0, 'G': 0 }
+attackMap = { 'E' : int(sys.argv[2]), 'G' : 3 }
 
 grid = []
 players = {}
@@ -29,7 +30,7 @@ for y, line in enumerate(file):
 	for x, pos in enumerate(line.strip()):
 		if pos == 'E' or pos =='G':
 			count[pos] += 1
-			player = Player(pos,x,y);
+			player = Player(pos, x, y, attackMap[pos]);
 			players["%i,%i" % (x,y)] = player
 
 		row.append(pos)
@@ -112,15 +113,18 @@ def attack(player, y, x):
 	enemy.hp -= player.attack
 
 	if enemy.hp <= 0:
-		print(enemy.type, "DOWN")
+		#print(enemy.type, "DOWN")
+		if enemy.type == 'E':
+			print('Elf died')
+
 		count[enemy.type] -= 1
 		grid[enemy.y][enemy.x] = '.'
 		del players[key]
 
-print("\n\nInitially")
+#print("\n\nInitially")
 
-for row in grid:
-	print("".join(row));
+#for row in grid:
+#	print("".join(row));
 
 
 numRounds = -1
@@ -131,46 +135,18 @@ while count['E'] > 0 and count['G'] > 0:
 	playerList.sort();
 
 	#find closest player and move towards them
-	for numPlayer, p in enumerate(playerList):
-		if p.hp > 0:
+	for numPlayer, iterPlayer in enumerate(playerList):
+		key = "%i,%i" % (iterPlayer.x,iterPlayer.y)
 
-			enemy = 'G' if p.type == 'E' else 'E'
-			x = p.x
-			y = p.y
+		if key in players:
+			p = players[key]
 
-			print("player at %i,%i's turn" % (x,y))
-
-			q = PriorityQueue()
-
-			if grid[y-1][x] == enemy:
-				key = "%i,%i" % (x,y-1)
-				hp = players[key].hp 
-				q.put((hp, y-1, x))
-			if grid[y][x-1] == enemy:
-				key = "%i,%i" % (x-1,y)
-				hp = players[key].hp 
-				q.put((hp, y, x-1))
-			if grid[y][x+1] == enemy:
-				key = "%i,%i" % (x+1,y)
-				hp = players[key].hp 
-				q.put((hp, y, x+1))
-			if grid[y+1][x] == enemy:
-				key = "%i,%i" % (x,y+1)
-				hp = players[key].hp 
-				q.put((hp, y+1, x))
-
-			if not q.empty():
-				attackPos = q.get()
-				attack(p, attackPos[1], attackPos[2]);
-
-				#if the last player just finished their turn
-				if (count['E'] == 0 or count['G'] == 0) and numPlayer == len(playerList) - 1:
-					numRounds += 1
-
-			else:
-				movePlayer(p, enemy);
+			if p.hp > 0:
+				enemy = 'G' if p.type == 'E' else 'E'
 				x = p.x
 				y = p.y
+
+				#print("player at %i,%i's turn" % (x,y))
 
 				q = PriorityQueue()
 
@@ -199,21 +175,62 @@ while count['E'] > 0 and count['G'] > 0:
 					if (count['E'] == 0 or count['G'] == 0) and numPlayer == len(playerList) - 1:
 						numRounds += 1
 
-	print("\n\nAfter %i round(s)" % (numRounds + 1))
+				else:
+					movePlayer(p, enemy);
+					x = p.x
+					y = p.y
 
-	for row in grid:
-		print("".join(row));
+					q = PriorityQueue()
+
+					if grid[y-1][x] == enemy:
+						key = "%i,%i" % (x,y-1)
+						hp = players[key].hp 
+						q.put((hp, y-1, x))
+					if grid[y][x-1] == enemy:
+						key = "%i,%i" % (x-1,y)
+						hp = players[key].hp 
+						q.put((hp, y, x-1))
+					if grid[y][x+1] == enemy:
+						key = "%i,%i" % (x+1,y)
+						hp = players[key].hp 
+						q.put((hp, y, x+1))
+					if grid[y+1][x] == enemy:
+						key = "%i,%i" % (x,y+1)
+						hp = players[key].hp 
+						q.put((hp, y+1, x))
+
+					if not q.empty():
+						attackPos = q.get()
+						attack(p, attackPos[1], attackPos[2]);
+
+						#if the last player just finished their turn
+						if (count['E'] == 0 or count['G'] == 0) and numPlayer == len(playerList) - 1:
+							numRounds += 1
+
+	#print("\n\nAfter %i round(s)" % (numRounds + 1))
+
+	#for row in grid:
+	#	print("".join(row));
 
 	numRounds += 1
 
-print("Battle lasted %i rounds" % numRounds)
+	playerList = list(players.values());
+	playerList.sort();
+
+	#find closest player and move towards them
+	#for numPlayer, p in enumerate(playerList):
+	#	print(p.type, p.hp)
+
+#print("Battle lasted %i rounds" % numRounds)
+
+#print(count['E'], "left")
 
 hpLeft = 0;
 
 for key in players:
 	hpLeft += players[key].hp
 
-print("Total HP left: %i" % hpLeft)
+#print("Total HP left: %i" % hpLeft)
 
 print("Battle score is %i" % (numRounds * hpLeft))
 
