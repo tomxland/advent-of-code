@@ -4,23 +4,13 @@ file = open(sys.argv[1], 'r')
 MAX = 50
 
 grid = []
-original = []
 
 for line in file:
 	grid.append(line.strip())
-	original.append(line.strip())
 
 def printGrid():
 	for row in grid:
 		print("".join(row))
-
-
-def equalsOriginal():
-	for i, row in enumerate(grid):
-		if grid[i] != original[i]:
-			return False
-
-	return True
 
 def getStates(r,c):
 	states = { '|' : 0, '#' : 0, '.' : 0}
@@ -33,17 +23,20 @@ def getStates(r,c):
 	return states
 
 
-printGrid()
+#printGrid()
 
+scores = [0]
+prev = ['']
+
+repeat = True
 count = 0
-scores = []
+cycleStart = 0
 
-while True:
-	next = []
-
+while repeat:
+	print(count)
 	numWood = 0
 	numLumberyard = 0
-
+	next = []
 	for r in range(MAX):
 		row = ''
 		for c in range(MAX):
@@ -71,14 +64,21 @@ while True:
 
 		next.append(row);
 
+	score = numWood * numLumberyard
 	grid = next;
-	score  = numLumberyard * numWood
+	count += 1
+	gridStr = "".join(grid);
+
+	for i, g in enumerate(prev):
+		if gridStr == g:
+			cycleStart = i
+			repeat = False
+
+	prev.append(gridStr)
 	scores.append(score)
+	cycleEnd = count
 
-	if equalsOriginal():
-		break
-	else:
-		count += 1
-
-print(count)
-
+print(cycleStart, cycleEnd);
+cycleLen = cycleEnd - cycleStart
+index = (1000000000 - cycleStart) % cycleLen
+print(scores[cycleStart + index])

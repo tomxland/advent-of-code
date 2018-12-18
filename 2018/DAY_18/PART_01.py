@@ -25,7 +25,7 @@ def getStates(r,c):
 
 printGrid()
 
-for i in range(1000000000):
+for i in range(10):
 	next = []
 	for r in range(MAX):
 		row = ''
