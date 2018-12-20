@@ -89,6 +89,8 @@ def printGrid():
     print(str)
 
 longestPath = 0
+count = 0
+
 q = PriorityQueue()
 q.put((0,MID,MID))
 
@@ -100,8 +102,8 @@ while not q.empty():
   y = point[1]
   x = point[2]
 
-  if length > longestPath:
-    longestPath = length
+  if length >= 1000:
+    count += 1
 
   if grid[y-1][x] and grid[y-2][x]:
     grid[y-2][x] = False
@@ -120,4 +122,4 @@ while not q.empty():
     q.put((length + 1, y, x+2))
 
 
-print(longestPath)
+print(count)
