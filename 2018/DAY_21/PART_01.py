@@ -127,8 +127,7 @@ visited = set()
 while ip < len(instr) and ip >= 0:
 	register[ipReg] = ip
 	currInstr = instr[ip]
-	print("ip=%i %s\t%s" % (ip, register, currInstr))
-
+	#print("ip=%i %s\t%s" % (ip, register, currInstr))
 
 	if ip == 28:
 		if register[3] not in visited:
@@ -136,12 +135,6 @@ while ip < len(instr) and ip >= 0:
 			print(register[3])
 		else:
 			ip = 50000
-
-		flag = False
-		input()
-
-	if flag:
-		input()
 
 	currInstr.run()
 	ip = register[ipReg] + 1
