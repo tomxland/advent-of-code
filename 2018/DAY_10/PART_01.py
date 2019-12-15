@@ -37,8 +37,8 @@ def getConvergence():
 				grid.append(row)
 
 			for i in range(len(xPositions)):
-				x = xPositions[i] - minX;
-				y = yPositions[i] - minY;
+				x = xPositions[i] - minX
+				y = yPositions[i] - minY
 				grid[y][x] = '#'
 
 			f = open("output.txt", "w")

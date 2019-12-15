@@ -1,18 +1,41 @@
 import sys, math
 
-INPUT = 2
+class Point:
+	def __init__(self,_x,_y):
+		self.x = _x
+		self.y = _y
 
 file = open(sys.argv[1], 'r')
-
 line = file.readline().strip().split(",")
+file.close()
+
 nums = []
 
 for val in line:
 	nums.append(int(val))
 
 #Pad memory
-for i in range(100000):
+for i in range(100):
 	nums.append(0)
+
+nums[0] = 2
+
+grid = []
+for y in range(21):
+	row = []
+	for x in range (35):
+		row.append('?')
+
+	grid.append(row)
+
+count = 0
+numBlocks = 0
+
+currX = 0
+currY = 0
+paddleX = 0
+paddleY = 0
+ballX = 0
 
 REL_BASE = 0
 opcode = 0
@@ -54,12 +77,53 @@ while opcode != 99:
 
 	elif opcode == 3:
 		index = getIndex(i+1, modes[0])
-		nums[index] = INPUT
+		if ballX < paddleX: #Move left
+			nums[index] = -1
+
+			grid[paddleY][paddleX] = ' '
+			paddleX -= 1
+			grid[paddleY][paddleX] = '-'
+		elif ballX > paddleX: #Move right
+			nums[index] = 1
+
+			grid[paddleY][paddleX] = ' '
+			paddleX += 1
+			grid[paddleY][paddleX] = '-'
+		else:
+			nums[index] = 0
+
 		i += 2
 
 	elif opcode == 4:
 		a = getValue(i+1, modes[0])
-		print(a)
+
+		if count % 3 == 0:
+			currX = a
+		elif count % 3 == 1:
+			currY = a
+		else:
+			if currX == -1 and currY == 0:
+				print('Score:',a)
+			if a == 0: #empty
+				grid[currY][currX] = ' '
+			elif a == 1: #wall
+				grid[currY][currX] = 'H'
+			elif a == 2: #block
+				grid[currY][currX] = 'X'
+				numBlocks += 1
+			elif a == 3: #horizonal paddle
+				grid[currY][currX] = '-'
+				paddleX = currX
+				paddleY = currY
+			elif a == 4: #ball
+				if grid[currY][currX] == 'X':
+					numBlocks -= 1
+					if numBlocks == 0:
+						opcode = 99
+				grid[currY][currX] = 'o'
+				ballX = currX
+
+		count += 1
 		i += 2
 
 	elif opcode == 9:
@@ -106,5 +170,3 @@ while opcode != 99:
 		else:
 			print("Invalid opp code")
 			break
-
-file.close()
