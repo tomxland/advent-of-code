@@ -1,17 +1,19 @@
 import sys, math
 
-INPUT = 2
-
 file = open(sys.argv[1], 'r')
-
 line = file.readline().strip().split(",")
+file.close()
+
 nums = []
+
+count = 0
+numBlocks = 0
 
 for val in line:
 	nums.append(int(val))
 
 #Pad memory
-for i in range(100000):
+for i in range(10000):
 	nums.append(0)
 
 REL_BASE = 0
@@ -58,8 +60,12 @@ while opcode != 99:
 		i += 2
 
 	elif opcode == 4:
-		a = getValue(i+1, modes[0])
-		print(a)
+		a = getValue(i+1, modes[0])		
+		count += 1
+
+		if count % 3 == 0 and a == 2:
+			numBlocks += 1
+
 		i += 2
 
 	elif opcode == 9:
@@ -107,4 +113,4 @@ while opcode != 99:
 			print("Invalid opp code")
 			break
 
-file.close()
+print("There are %i blocks" % numBlocks)

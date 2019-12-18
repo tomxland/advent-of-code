@@ -1,17 +1,37 @@
 import sys, math
 
-INPUT = 2
+
+MAX_SIZE = 43
+grid = []
+for i in range(MAX_SIZE):
+	row = []
+	for j in range(MAX_SIZE):
+		row.append(' ')
+	grid.append(row)
+
+x = MAX_SIZE//2
+y = MAX_SIZE//2
+nextX = 50
+nextY = 50
+
+dir = 0
+
+path = []
 
 file = open(sys.argv[1], 'r')
-
 line = file.readline().strip().split(",")
+file.close()
+
 nums = []
+
+count = 0
+numBlocks = 0
 
 for val in line:
 	nums.append(int(val))
 
 #Pad memory
-for i in range(100000):
+for i in range(10000):
 	nums.append(0)
 
 REL_BASE = 0
@@ -54,12 +74,68 @@ while opcode != 99:
 
 	elif opcode == 3:
 		index = getIndex(i+1, modes[0])
-		nums[index] = INPUT
+
+		#if you can go:
+		if grid[y-1][x] == ' ':
+			nextY = y-1
+			nextX = x 
+			dir = 1
+			path.append(dir)
+		elif grid[y+1][x] == ' ':
+			nextY = y+1
+			nextX = x 
+			dir = 2
+			path.append(dir)
+		elif grid[y][x-1] == ' ':
+			nextY = y
+			nextX = x-1
+			dir = 3
+			path.append(dir)
+		elif grid[y][x+1] == ' ':
+			nextY = y
+			nextX = x+1
+			dir = 4
+			path.append(dir)
+		else: #go back how you came
+			if len(path) == 0:
+				break
+
+			prevDir = path.pop()
+			if prevDir == 1:
+				nextY = y+1
+				nextX = x 
+				dir = 2
+			elif prevDir == 2:
+				nextY = y-1
+				nextX = x 
+				dir = 1
+			elif prevDir == 3:
+				nextY = y
+				nextX = x+1
+				dir = 4
+			elif prevDir == 4:
+				nextY = y
+				nextX = x-1
+				dir = 3
+
+		nums[index] = dir
 		i += 2
 
 	elif opcode == 4:
 		a = getValue(i+1, modes[0])
-		print(a)
+
+		if a == 0:
+			grid[nextY][nextX] = '#'
+			path.pop()
+		else:
+			if a == 2:
+				print("Shortest path is %i" % len(path))
+				break
+
+			grid[y][x] = '.'
+			x = nextX
+			y = nextY
+
 		i += 2
 
 	elif opcode == 9:
@@ -106,5 +182,3 @@ while opcode != 99:
 		else:
 			print("Invalid opp code")
 			break
-
-file.close()
