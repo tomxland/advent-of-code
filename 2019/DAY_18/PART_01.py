@@ -28,29 +28,30 @@ file.close()
 print(numDoors, numKeys)
 
 q = PriorityQueue()
-q.put((0, startY, startX, "", ""))
+q.put((0, 0, startY, startX, ""))
 
 states = set()
+factor = 10
+minSteps = 10000
 
 while not q.empty():
 	obj = q.get()
-	steps = obj[0]
-	y = obj[1]
-	x = obj[2]
-	keys = obj[3]
-	doors = obj[4]
+	steps = obj[1]
+	y = obj[2]
+	x = obj[3]
+	keys = obj[4]
 
-	state = "(%i,%i) %s - %s" % (y,x,doors,keys)
+	state = "(%i,%i) %s" % (y,x,sorted(keys))
 
 	if state in states:
 		continue
 	else:
 		states.add(state)
 
-	#print(state)
+	# print(state)
 
-	if len(doors) == numDoors and len(keys) == numKeys:
-		print(doors, keys)
+	if len(keys) == numKeys:
+		print(keys)
 		print("Shortest path in %i steps" % steps)
 		break
 
@@ -59,47 +60,87 @@ while not q.empty():
 	if grid[y-1][x] != '#':
 		pos = grid[y-1][x]
 		myKeys = keys
-		myDoors = doors
 
-		if pos.isalpha() and pos.islower() and pos not in myKeys:
-			myKeys += pos
-		elif pos.isalpha() and pos.isupper() and pos.lower() in myKeys and pos not in myDoors:
-			myDoors += pos
+		if pos == '@' or pos == '.':
+			keyDiff = numKeys - len(myKeys)
+			score = keyDiff + (factor*steps)
+			q.put((score, steps, y-1, x, myKeys))
 
-		q.put((steps, y-1, x, myKeys, myDoors))
+		elif pos.islower():
+			if pos not in myKeys: #get key if you
+				myKeys += pos
+			
+			keyDiff = numKeys - len(myKeys)
+			score = keyDiff + (factor*steps)
+			q.put((score, steps, y-1, x, myKeys))
+		
+		elif pos.isupper() and pos.lower() in myKeys:
+			keyDiff = numKeys - len(myKeys)
+			score = keyDiff + (factor*steps)
+			q.put((score, steps, y-1, x, myKeys))
 	
 	if grid[y+1][x] != '#':
 		pos = grid[y+1][x]
 		myKeys = keys
-		myDoors = doors
 
-		if pos.isalpha() and pos.islower() and pos not in myKeys:
-			myKeys += pos
-		elif pos.isalpha() and pos.isupper() and pos.lower() in myKeys and pos not in myDoors:
-			myDoors += pos
+		if pos == '@' or pos == '.':
+			keyDiff = numKeys - len(myKeys)
+			score = keyDiff + (factor*steps)
+			q.put((score, steps, y+1, x, myKeys))
 
-		q.put((steps, y+1, x, myKeys, myDoors))
+		elif pos.islower():
+			if pos not in myKeys: #get key if you
+				myKeys += pos
+			
+			keyDiff = numKeys - len(myKeys)
+			score = keyDiff + (factor*steps)
+			q.put((score, steps, y+1, x, myKeys))
+		
+		elif pos.isupper() and pos.lower() in myKeys:
+			keyDiff = numKeys - len(myKeys)
+			score = keyDiff + (factor*steps)
+			q.put((score, steps, y+1, x, myKeys))
 	
 	if grid[y][x-1] != '#':
 		pos = grid[y][x-1]
 		myKeys = keys
-		myDoors = doors
 
-		if pos.isalpha() and pos.islower() and pos not in myKeys:
-			myKeys += pos
-		elif pos.isalpha() and pos.isupper() and pos.lower() in myKeys and pos not in myDoors:
-			myDoors += pos
+		if pos == '@' or pos == '.':
+			keyDiff = numKeys - len(myKeys)
+			score = keyDiff + (factor*steps)
+			q.put((score, steps, y, x-1, myKeys))
 
-		q.put((steps, y, x-1, myKeys, myDoors))
+		elif pos.islower():
+			if pos not in myKeys: #get key if you
+				myKeys += pos
+			
+			keyDiff = numKeys - len(myKeys)
+			score = keyDiff + (factor*steps)
+			q.put((score, steps, y, x-1, myKeys))
+		
+		elif pos.isupper() and pos.lower() in myKeys:
+			keyDiff = numKeys - len(myKeys)
+			score = keyDiff + (factor*steps)
+			q.put((score, steps, y, x-1, myKeys))
 
 	if grid[y][x+1] != '#':
 		pos = grid[y][x+1]
 		myKeys = keys
-		myDoors = doors
 
-		if pos.isalpha() and pos.islower() and pos not in myKeys:
-			myKeys += pos
-		elif pos.isalpha() and pos.isupper() and pos.lower() in myKeys and pos not in myDoors:
-			myDoors += pos
+		if pos == '@' or pos == '.':
+			keyDiff = numKeys - len(myKeys)
+			score = keyDiff + (factor*steps)
+			q.put((score, steps, y, x+1, myKeys))
 
-		q.put((steps, y, x+1, myKeys, myDoors))
+		elif pos.islower():
+			if pos not in myKeys: #get key if you
+				myKeys += pos
+			
+			keyDiff = numKeys - len(myKeys)
+			score = keyDiff + (factor*steps)
+			q.put((score, steps, y, x+1, myKeys))
+		
+		elif pos.isupper() and pos.lower() in myKeys:
+			keyDiff = numKeys - len(myKeys)
+			score = keyDiff + (factor*steps)
+			q.put((score, steps, y, x+1, myKeys))
