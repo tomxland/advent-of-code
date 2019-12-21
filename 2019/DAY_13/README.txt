@@ -1,7 +1,3 @@
-Advent of Code[About][Events][Shop][Settings][Log Out]Tom Crossland 30*
-       y(2019)[Calendar][AoC++][Sponsors][Leaderboard][Stats]
-Our sponsors help make Advent of Code possible:
-Educative.io - Gain in-demand tech skills, at the speed you want. Text-based courses with live coding environments help you learn without the fluff.
 --- Day 13: Care Package ---
 As you ponder the solitude of space and the ever-increasing three-hour roundtrip for messages between you and Earth, you notice that the Space Mail Indicator Light is blinking. To help keep you sane, the Elves have sent you a care package.
 
