@@ -130,26 +130,36 @@ count = 0
 WIDTH = int(sys.argv[2])
 found = False
 
+start = 0
+
 for y in range(0,WIDTH):
 	row = []
 	countRow = 0
 	print("Row", y)
-	for x in range(0,WIDTH):
-		drone = getDrone(x,y)
-		row.append(drone)
-		if drone is None:
-			break
-		if drone == '1':
-			count += 1
-			countRow += 1
-		else:
-			countRow = 0
+	for x in range(0,WIDTH): 
+		if countRow != -1:
+			if x < start:
+				row.append('0')
+			else:
+				drone = getDrone(x,y)
+				row.append(drone)
 
-		if countRow > 100:
-			if y > 100 and x > 100 and grid[y-100][x-100] == "1" and grid[y][x-100] == "1" and grid[y-100][x] == "1":
-				print("(%i,%i)" % (x-100,y-100))
-				print(grid[y-100][x-100])
-				print(10000*x + y)
+				if drone == '1':
+					if count == 0:
+						start = x
+
+					count += 1
+					countRow += 1
+				elif countRow > 0:
+					countRow = -1
+		else:
+			row.append('0')
+
+		if countRow >= 100:
+			if grid[y-99][x-99] == "1" and row[x-99] == "1" and grid[y-99][x] == "1":
+				print("(%i,%i)" % (x-99,y-99))
+				print(grid[y-99][x-99])
+				print(10000*(x-99) + (y-99))
 				found = True
 				break
 

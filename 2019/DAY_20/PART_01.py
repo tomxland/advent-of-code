@@ -105,8 +105,6 @@ for k in keys.keys():
 		map[keys[k][0]] = keys[k][1]
 		map[keys[k][1]] = keys[k][0]
 
-print(map)
-
 start = keys['AA'][0]
 end = keys['ZZ'][0]
 
@@ -132,7 +130,6 @@ while not q.empty():
 
 	if (y,x) in map:
 		newPt = map[(y,x)]
-		print("Portal from", (y,x) ," to ", newPt)
 		q.put((steps, newPt[0], newPt[1]))
 
 	q.put((steps, y-1, x))

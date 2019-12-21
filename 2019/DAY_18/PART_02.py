@@ -2,190 +2,51 @@ import sys, math, copy
 from queue import PriorityQueue
 
 grid = []
-robots = []
-numDoors = 0
-numKeys = 0
 
 file = open(sys.argv[1], 'r')
 for y, line in enumerate(file):
 	row = []
 	for x, ch in enumerate(line.strip()):
 		row.append(ch)
-		if ch == '@':
-			robots.append([y,x])
-
-		elif ch.isalpha():
-			if ch.isupper():
-				numDoors += 1
-			else:
-				numKeys += 1
-
 	grid.append(row)
 file.close()
 
-q = PriorityQueue()
-q.put((0, 0, robots, ""))
+numChanged = 1
 
-states = set()
-factor = 10
-minSteps = 10000
+while numChanged > 0:
+    numChanged = 0
+    count = 0
 
-count = 0
+    for y in range (1, len(grid)-1):
+        for x in range(1, len(grid[0])-1):
+            ends = 0
+            
+            if grid[y][x].isupper():
+                grid[y][x] = '.'
 
-while not q.empty():
-	obj = q.get()
-	steps = obj[1]
-	robots = copy.deepcopy(obj[2])
-	keys = obj[3]
+            if grid[y][x] == '.':
+                count += 1
 
-	state = "%s - %s" % (str(robots),"".join(sorted(keys)))
+                if grid[y-1][x] == '#':
+                    ends += 1
+                if grid[y+1][x] == '#':
+                    ends += 1
+                if grid[y][x-1] == '#':
+                    ends += 1
+                if grid[y][x+1] == '#':
+                    ends += 1
+                
+                if ends >= 3:
+                    grid[y][x] = '#'
+                    numChanged += 1
 
-	if state in states:
-		continue
-	else:
-		states.add(state)
+f = open('output.txt','w')
 
-	# print(state)
+for row in grid:
+    for ch in row:
+        f.write(ch)
+    f.write('\n')
 
-	if len(keys) == numKeys:
-		print(keys)
-		print("Shortest path in %i steps" % steps)
-		break
+f.close()
 
-	steps += 1
-
-	for i, rob in enumerate(robots):
-		y = rob[0]
-		x = rob[1]
-	
-		if grid[y-1][x] != '#':
-			pos = grid[y-1][x]
-			myKeys = keys
-			myRobots = copy.deepcopy(robots)
-			myRobots[i][0] = y-1
-
-			if pos == '@' or pos == '.':
-				keyDiff = numKeys - len(myKeys)
-				score = keyDiff + (factor*steps)
-
-				state = "%s - %s" % (str(myRobots),"".join(sorted(myKeys)))
-				if state not in states:
-					q.put((score, steps, myRobots, myKeys))
-
-			elif pos.islower():
-				if pos not in myKeys: #get key if you
-					myKeys += pos
-				
-				keyDiff = numKeys - len(myKeys)
-				score = keyDiff + (factor*steps)
-
-				state = "%s - %s" % (str(myRobots),"".join(sorted(myKeys)))
-				if state not in states:
-					q.put((score, steps, myRobots, myKeys))
-			
-			elif pos.isupper() and pos.lower() in myKeys:
-				keyDiff = numKeys - len(myKeys)
-				score = keyDiff + (factor*steps)
-				
-				state = "%s - %s" % (str(myRobots),"".join(sorted(myKeys)))
-				if state not in states:
-					q.put((score, steps, myRobots, myKeys))
-		
-		if grid[y+1][x] != '#':
-			pos = grid[y+1][x]
-			myKeys = keys
-			myRobots = copy.deepcopy(robots)
-			myRobots[i][0] = y+1
-
-			if pos == '@' or pos == '.':
-				keyDiff = numKeys - len(myKeys)
-				score = keyDiff + (factor*steps)
-				
-				state = "%s - %s" % (str(myRobots),"".join(sorted(myKeys)))
-				if state not in states:
-					q.put((score, steps, myRobots, myKeys))
-
-			elif pos.islower():
-				if pos not in myKeys: #get key if you
-					myKeys += pos
-				
-				keyDiff = numKeys - len(myKeys)
-				score = keyDiff + (factor*steps)
-				
-				state = "%s - %s" % (str(myRobots),"".join(sorted(myKeys)))
-				if state not in states:
-					q.put((score, steps, myRobots, myKeys))
-			
-			elif pos.isupper() and pos.lower() in myKeys:
-				keyDiff = numKeys - len(myKeys)
-				score = keyDiff + (factor*steps)
-				
-				state = "%s - %s" % (str(myRobots),"".join(sorted(myKeys)))
-				if state not in states:
-					q.put((score, steps, myRobots, myKeys))
-		
-		if grid[y][x-1] != '#':
-			pos = grid[y][x-1]
-			myKeys = keys
-			myRobots = copy.deepcopy(robots)
-			myRobots[i][1] = x-1
-
-			if pos == '@' or pos == '.':
-				keyDiff = numKeys - len(myKeys)
-				score = keyDiff + (factor*steps)
-				
-				state = "%s - %s" % (str(myRobots),"".join(sorted(myKeys)))
-				if state not in states:
-					q.put((score, steps, myRobots, myKeys))
-
-			elif pos.islower():
-				if pos not in myKeys: #get key if you
-					myKeys += pos
-				
-				keyDiff = numKeys - len(myKeys)
-				score = keyDiff + (factor*steps)
-				
-				state = "%s - %s" % (str(myRobots),"".join(sorted(myKeys)))
-				if state not in states:
-					q.put((score, steps, myRobots, myKeys))
-			
-			elif pos.isupper() and pos.lower() in myKeys:
-				keyDiff = numKeys - len(myKeys)
-				score = keyDiff + (factor*steps)
-				
-				state = "%s - %s" % (str(myRobots),"".join(sorted(myKeys)))
-				if state not in states:
-					q.put((score, steps, myRobots, myKeys))
-
-		if grid[y][x+1] != '#':
-			pos = grid[y][x+1]
-			myKeys = keys
-			myRobots = copy.deepcopy(robots)
-			myRobots[i][1] = x+1
-
-			if pos == '@' or pos == '.':
-				keyDiff = numKeys - len(myKeys)
-				score = keyDiff + (factor*steps)
-				
-				state = "%s - %s" % (str(myRobots),"".join(sorted(myKeys)))
-				if state not in states:
-					q.put((score, steps, myRobots, myKeys))
-
-			elif pos.islower():
-				if pos not in myKeys: #get key if you
-					myKeys += pos
-				
-				keyDiff = numKeys - len(myKeys)
-				score = keyDiff + (factor*steps)
-
-				state = "%s - %s" % (str(myRobots),"".join(sorted(myKeys)))
-				if state not in states:
-					q.put((score, steps, myRobots, myKeys))
-			
-			elif pos.isupper() and pos.lower() in myKeys:
-				keyDiff = numKeys - len(myKeys)
-				score = keyDiff + (factor*steps)
-
-				state = "%s - %s" % (str(myRobots),"".join(sorted(myKeys)))
-				if state not in states:
-					q.put((score, steps, myRobots, myKeys))
+print("There are %i valid spaces in the maze. Manually count additional for backtracking" % (count + 26))
