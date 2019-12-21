@@ -1,159 +1,146 @@
-import sys, math
-
-nums = []
-REL_BASE = 0
-
-def getValue(i, mode):
-	global REL_BASE
-	global nums
-
-	if mode == 0:
-		return nums[nums[i]]
-	elif mode == 1:
-		return nums[i]
-	else:
-		pos = REL_BASE + nums[i]
-		return nums[pos]
-
-def getIndex(i,mode):
-	global nums
-
-	if mode == 2:
-		return REL_BASE + nums[i]
-	else:
-		return nums[i]
-
-def getDrone(x, y):
-	file = open(sys.argv[1], 'r')
-	line = file.readline().strip().split(",")
-	file.close()
-
-	global nums
-	global REL_BASE
-
-	nums = []
-	REL_BASE = 0
-
-	count = 0
-	numBlocks = 0
-
-	for val in line:
-		nums.append(int(val))
-
-	#Pad memory
-	for i in range(1000):
-		nums.append(0)
-
-	opcode = 0
-	i = 0
-
-	inputs = []
-
-	while opcode != 99:
-		modes = [0,0,0]
-		instr = nums[i]
-
-		opcode = instr % 100
-		instr //= 100
-
-		for j in range(3):
-			modes[j] = instr % 10
-			instr //= 10
-
-		if opcode == 99:
-			break
-
-		elif opcode == 3:
-			index = getIndex(i+1, modes[0])
-
-			count += 1
-
-			if count % 2 == 1:
-				nums[index] = x
-			else:
-				nums[index] = y
-
-			i += 2
-
-		elif opcode == 4:
-			a = getValue(i+1, modes[0])	
-			return str(a)	
-			# i += 2
-
-		elif opcode == 9:
-			a = getValue(i+1, modes[0])
-			REL_BASE += a
-			i += 2
-
-		else:
-			a = getValue(i+1, modes[0])
-			b = getValue(i+2, modes[1])
-
-			if opcode == 1:
-				index = getIndex(i+3, modes[2])
-				nums[index] = a + b
-				i += 4
-
-			elif opcode == 2:
-				index = getIndex(i+3, modes[2])
-				nums[index] = a * b
-				i += 4
-
-			elif opcode == 5: #jump-if-true
-				if a != 0:
-					i = b
-				else:
-					i += 3
-
-			elif opcode == 6: #jump-if-false
-				if a == 0:
-					i = b
-				else:
-					i += 3
-
-			elif opcode == 7: #less-than
-				index = getIndex(i+3, modes[2])
-				nums[index] = 1 if a < b else 0
-				i += 4
-
-			elif opcode == 8: #equals
-				index = getIndex(i+3, modes[2])
-				nums[index] = 1 if a == b else 0
-				i += 4
-
-			else:
-				print("Invalid opp code")
-				break
+import sys, math, re
+from queue import PriorityQueue
 
 grid = []
-count = 0
-WIDTH = int(sys.argv[2])
-found = False
 
-for y in range(0,WIDTH):
+file = open(sys.argv[1], 'r')
+for line in file:
 	row = []
-	countRow = 0
-	print("Row", y)
-	for x in range(0,WIDTH):
-		drone = getDrone(x,y)
-		row.append(drone)
-		if drone is None:
-			break
-		if drone == '1':
-			count += 1
-			countRow += 1
-		else:
-			countRow = 0
-
-		if countRow > 100:
-			if y > 100 and x > 100 and grid[y-100][x-100] == "1" and grid[y][x-100] == "1" and grid[y-100][x] == "1":
-				print("(%i,%i)" % (x-100,y-100))
-				print(grid[y-100][x-100])
-				print(10000*x + y)
-				found = True
-				break
-
-	if found:
-		break
-
+	for ch in line[:-1]:
+		row.append(ch)
 	grid.append(row)
+
+file.close()
+
+DONUT_WIDTH = 25
+MAZE_WIDTH = len(grid[0])
+MAZE_HEIGHT = len(grid)
+
+keys = {}
+
+for x in range(MAZE_WIDTH):
+	i = 2
+	key = grid[i-2][x] + grid[i-1][x]
+
+	if key.isalpha():
+		if key not in keys:
+			keys[key] = []
+
+		keys[key].append((i,x,1))
+
+for x in range(MAZE_WIDTH):
+	i = MAZE_HEIGHT - DONUT_WIDTH - 2
+	key = grid[i-2][x] + grid[i-1][x]
+
+	if key.isalpha():
+		if key not in keys:
+			keys[key] = []
+
+		keys[key].append((i,x,-1))
+
+for x in range(MAZE_WIDTH):
+	i = 1 + DONUT_WIDTH
+	key = grid[i+1][x] + grid[i+2][x]
+
+	if key.isalpha():
+		if key not in keys:
+			keys[key] = []
+
+		keys[key].append((i,x,-1))
+
+for x in range(MAZE_WIDTH-2):
+	i = MAZE_HEIGHT - 3
+	key = grid[i+1][x] + grid[i+2][x]
+
+	if key.isalpha():
+		if key not in keys:
+			keys[key] = []
+
+		keys[key].append((i,x,1))
+
+for y in range(MAZE_HEIGHT):
+	i = 2
+	key = grid[y][i-2] + grid[y][i-1]
+
+	if key.isalpha():
+		if key not in keys:
+			keys[key] = []
+
+		keys[key].append((y,i,1))
+
+for y in range(MAZE_HEIGHT):
+	i = MAZE_WIDTH - DONUT_WIDTH - 2
+	key = grid[y][i-2] + grid[y][i-1]
+
+	if key.isalpha():
+		if key not in keys:
+			keys[key] = []
+
+		keys[key].append((y,i,-1))
+
+for y in range(MAZE_HEIGHT):
+	i = 1 + DONUT_WIDTH
+	key = grid[y][i+1] + grid[y][i+2]
+
+	if key.isalpha():
+		if key not in keys:
+			keys[key] = []
+
+		keys[key].append((y,i,-1))
+
+for y in range(MAZE_HEIGHT - 2):
+	i = MAZE_WIDTH - 3
+	key = grid[y][i+1] + grid[y][i+2]
+
+	if key.isalpha():
+		if key not in keys:
+			keys[key] = []
+
+		keys[key].append((y,i,1))
+
+map = {}
+
+for k in keys.keys():
+	if k != 'AA' and k != 'ZZ':
+		k0 = (keys[k][0][0], keys[k][0][1])
+		k1 = (keys[k][1][0], keys[k][1][1])
+
+		map[k0] = keys[k][1]
+		map[k1] = keys[k][0]
+
+start = keys['AA'][0]
+end = keys['ZZ'][0]
+
+q = PriorityQueue()
+q.put((0, start[0], start[1], 0))
+
+visited = set()
+
+while not q.empty():
+	obj = q.get()
+	steps = obj[0]
+	y = obj[1]
+	x = obj[2]
+	level = obj[3]
+
+	state = "%i,%i - %i" % (y, x, level)
+	if grid[y][x] == '.' and state not in visited:
+		visited.add(state)
+
+		if y == end[0] and x == end[1] and level == 0:
+			print("Least number of steps is %i" % steps)
+			break
+
+		steps += 1
+
+		if (y,x) in map:
+			newPt = map[(y,x)]
+			newLevel = level + newPt[2]
+			
+			if newLevel >= 0:
+				q.put((steps, newPt[0], newPt[1], newLevel))
+
+		q.put((steps, y-1, x, level))
+		q.put((steps, y+1, x, level))
+		q.put((steps, y, x-1, level))
+		q.put((steps, y, x+1, level))
