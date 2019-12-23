@@ -15,17 +15,12 @@ numChanged = 1
 
 while numChanged > 0:
     numChanged = 0
-    count = 0
 
     for y in range (1, len(grid)-1):
         for x in range(1, len(grid[0])-1):
             ends = 0
             
-            if grid[y][x].isupper():
-                grid[y][x] = '.'
-
-            if grid[y][x] == '.':
-                count += 1
+            if grid[y][x] == '.' or grid[y][x].isupper():
 
                 if grid[y-1][x] == '#':
                     ends += 1
@@ -40,7 +35,7 @@ while numChanged > 0:
                     grid[y][x] = '#'
                     numChanged += 1
 
-f = open('output.txt','w')
+f = open('input2.txt','w')
 
 for row in grid:
     for ch in row:
@@ -48,5 +43,3 @@ for row in grid:
     f.write('\n')
 
 f.close()
-
-print("There are %i valid spaces in the maze. Manually count additional for backtracking" % (count + 26))
